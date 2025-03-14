@@ -85,8 +85,9 @@
                 <nav>
                     <ul class="space-y-2">
                         <li><a href="../index.html" class="block p-2 hover:bg-gray-200 rounded">Home</a></li>
-                        <li><a href="topic1.html" class="block p-2 hover:bg-gray-200 rounded">Topic 1</a></li>
-                        <li><a href="topic2.html" class="block p-2 hover:bg-gray-200 rounded">Topic 2</a></li>
+                        <li><a href="./topic1.html" class="block p-2 hover:bg-gray-200 rounded">Topic 1</a></li>
+                        <li><a href="./topic2.html" class="block p-2 hover:bg-gray-200 rounded">Topic 2</a></li>
+                        <li><a href="./topic3.html" class="block p-2 hover:bg-gray-200 rounded">Topic 3</a></li>
                     </ul>
                 </nav>
             </div>
@@ -105,17 +106,24 @@
                         <p class="mb-4">Here's where you explain the concept...</p>
                         
                         <!-- Code example with credential placeholders -->
-                        <div class="relative mb-8">
-                            <!-- Original code with placeholders (now hidden by default) -->
-                            <pre x-show="showSubstitutedCode"><code class="language-plaintext">FIX_LOGON ${USERNAME} ${PASSWORD} ${SENDER_COMP_ID} ${TARGET_COMP_ID}
-FIX_LOGOFF ${USERNAME}</code></pre>
-                            
-                            <!-- Substituted code with actual credentials (shown by default) -->
-                            <pre x-show="!showSubstitutedCode"><code class="language-plaintext" x-html="substituteCredentials('FIX_LOGON ${USERNAME} ${PASSWORD} ${SENDER_COMP_ID} ${TARGET_COMP_ID}\nFIX_LOGOFF ${USERNAME}')"></code></pre>
+                        <div class="relative mb-8 border rounded-lg overflow-hidden bg-gray-50">
+                            <!-- Header/title for the code section -->
+                            <div class="bg-gray-100 px-4 py-2 border-b">
+                                <h3 class="text-sm font-medium text-gray-700">Example Command</h3>
+                            </div>
 
-                            <div class="absolute -top-2 right-2 flex items-center">
+                            <!-- Code content -->
+                            <div class="p-4">
+                                <pre x-show="showSubstitutedCode"><code class="language-plaintext">FIX_LOGON ${USERNAME} ${PASSWORD} ${SENDER_COMP_ID} ${TARGET_COMP_ID}
+FIX_LOGOFF ${USERNAME}</code></pre>
+                                
+                                <pre x-show="!showSubstitutedCode"><code class="language-plaintext" x-html="substituteCredentials('FIX_LOGON ${USERNAME} ${PASSWORD} ${SENDER_COMP_ID} ${TARGET_COMP_ID}\nFIX_LOGOFF ${USERNAME}')"></code></pre>
+                            </div>
+
+                            <!-- Toggle button -->
+                            <div class="absolute top-1 right-2 flex items-center">
                                 <button 
-                                    @click="showSubstitutedCode = !showSubstitutedCode; setTimeout(() => hljs.highlightAll(), 10)" 
+                                    @click="showSubstitutedCode = !showSubstitutedCode" 
                                     class="text-sm px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center"
                                     :class="{ 'bg-blue-500 text-white hover:bg-blue-600': !showSubstitutedCode }"
                                 >

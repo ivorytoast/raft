@@ -3,32 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base Template</title>
+    <title>Topic 1 - Interactive Documentation</title>
     
-    <!-- Tailwind CSS via CDN -->
+    <!-- Same head content as index.html -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <!-- Custom styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body class="bg-white">
     <div x-data="{ 
         sidebarOpen: false,
-        showSubstitutedCode: false,
+        userAnswer: '',
+        showSolution: false,
         credentialSets: JSON.parse(localStorage.getItem('credentialSets') || '[]'),
         selectedCredentialIndex: 0,
         useStoredCredentials: true,
         customUsername: '',
         customPassword: '',
+        showSubstitutedCode: false,
+        
+        // Add Comp ID related properties
         senderCompIDs: JSON.parse(localStorage.getItem('senderCompIDs') || '[]'),
         targetCompIDs: JSON.parse(localStorage.getItem('targetCompIDs') || '[]'),
         selectedSenderCompID: '',
         selectedTargetCompID: '',
-        customSenderCompID: 'PFXO_IPV_MD1',
-        customTargetCompID: 'BGC',
+        customSenderCompID: 'PFXO_IPV_MD1',  // Default value
+        customTargetCompID: 'BGC',           // Default value
         
         get selectedCredential() {
             return this.credentialSets.length > 0 && this.selectedCredentialIndex >= 0 
@@ -55,34 +58,131 @@
         },
         
         substituteCredentials(codeText) {
+            // Replace placeholders with actual credentials and Comp IDs
             return codeText
                 .replace(/\${USERNAME}/g, this.currentCredentials.username)
                 .replace(/\${PASSWORD}/g, this.currentCredentials.password)
                 .replace(/\${SENDER_COMP_ID}/g, this.currentSenderCompID)
                 .replace(/\${TARGET_COMP_ID}/g, this.currentTargetCompID);
+        },
+        
+        checkAnswer() {
+            const credentialsToUse = this.currentCredentials;
+            
+            // Example validation using credentials
+            console.log('Using credentials:', credentialsToUse);
+            if (this.userAnswer.toLowerCase() === 'correct answer') {
+                alert('Correct!');
+            } else {
+                alert('Try again!');
+            }
         }
     }" class="min-h-screen flex">
-        <!-- Sidebar -->
+        <!-- Sidebar (same as index.html) -->
         <aside class="w-64 bg-gray-100 border-r border-gray-200 fixed h-full overflow-y-auto">
             <div class="p-4">
                 <h1 class="text-xl font-bold mb-4">Documentation</h1>
                 <nav>
                     <ul class="space-y-2">
                         <li><a href="../index.html" class="block p-2 hover:bg-gray-200 rounded">Home</a></li>
-                        <li><a href="topic1.html" class="block p-2 hover:bg-gray-200 rounded">Topic 1</a></li>
-                        <li><a href="topic2.html" class="block p-2 hover:bg-gray-200 rounded">Topic 2</a></li>
+                        <li><a href="./topic1.html" class="block p-2 hover:bg-gray-200 rounded">Topic 1</a></li>
+                        <li><a href="./topic2.html" class="block p-2 hover:bg-gray-200 rounded">Topic 2</a></li>
+                        <li><a href="./topic3.html" class="block p-2 hover:bg-gray-200 rounded">Topic 3</a></li>
                     </ul>
                 </nav>
             </div>
         </aside>
 
-        <!-- Main content -->
+        <!-- Main content with two-column layout -->
         <main class="ml-64 flex-1 p-8">
             <div class="flex">
                 <!-- Left column: Content -->
                 <div class="w-2/3 pr-8">
-                    <h1 class="text-3xl font-bold mb-6">Topic Title</h1>
-                    <!-- Content goes here -->
+                    <h1 class="text-3xl font-bold mb-6">Topic 1: Example Topic</h1>
+                    
+                    <!-- Documentation section with substitutable code -->
+                    <section class="mb-8">
+                        <h2 class="text-2xl font-semibold mb-4">Understanding the Concept</h2>
+                        <p class="mb-4">Here's where you explain the concept...</p>
+                        
+                        <!-- Code example with credential placeholders -->
+                        <div class="relative mb-8 border rounded-lg overflow-hidden bg-gray-50">
+                            <!-- Header/title for the code section -->
+                            <div class="bg-gray-100 px-4 py-2 border-b">
+                                <h3 class="text-sm font-medium text-gray-700">Example Command</h3>
+                            </div>
+
+                            <!-- Code content -->
+                            <div class="p-4">
+                                <pre x-show="showSubstitutedCode"><code class="language-plaintext">FIX_LOGON ${USERNAME} ${PASSWORD} ${SENDER_COMP_ID} ${TARGET_COMP_ID}
+FIX_LOGOFF ${USERNAME}</code></pre>
+                                
+                                <pre x-show="!showSubstitutedCode"><code class="language-plaintext" x-html="substituteCredentials('FIX_LOGON ${USERNAME} ${PASSWORD} ${SENDER_COMP_ID} ${TARGET_COMP_ID}\nFIX_LOGOFF ${USERNAME}')"></code></pre>
+                            </div>
+
+                            <!-- Toggle button -->
+                            <div class="absolute top-1 right-2 flex items-center">
+                                <button 
+                                    @click="showSubstitutedCode = !showSubstitutedCode" 
+                                    class="text-sm px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center"
+                                    :class="{ 'bg-blue-500 text-white hover:bg-blue-600': !showSubstitutedCode }"
+                                >
+                                    <span x-text="showSubstitutedCode ? 'Show With Credentials' : 'Show Template'"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Replace the current interactive section with a solution reveal section -->
+                    <section class="mb-8">
+                        <h2 class="text-2xl font-semibold mb-4">Example: Logging Off</h2>
+                        <p class="mb-4">Now that we've learned how to log on, let's see how to properly log off from the system.</p>
+                        
+                        <p class="mb-4">Try to determine the correct command to log off based on what you've learned.</p>
+                        
+                        <div x-data="{ showSolution: false }" class="mt-6">
+                            <button 
+                                @click="showSolution = !showSolution"
+                                class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
+                            >
+                                <span x-text="showSolution ? 'Hide Solution' : 'Show Solution'"></span>
+                            </button>
+                            
+                            <div x-show="showSolution" class="mt-4 p-4 bg-gray-50 border-l-4 border-blue-500 rounded">
+                                <h3 class="font-semibold mb-2">Solution:</h3>
+                                <pre><code class="language-plaintext" x-html="substituteCredentials('FIX_LOGOFF ${USERNAME}')"></code></pre>
+                                <p class="mt-2 text-sm text-gray-600">This command properly logs off the user from the system.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Simplified annotated code example with CSS classes -->
+                    <section class="mb-8">
+                        <h2 class="text-2xl font-semibold mb-4">How To Logoff After Logging On</h2>
+                        <p class="mb-4">After logging on to the system, it's important to properly log off when you're done.</p>
+                        
+                        <div class="relative mb-8 border rounded-lg overflow-hidden">
+                            <div class="p-4 bg-gray-50 font-mono">
+                                LOGON username password
+                                <p></p>
+                                <span class="annotation-added">LOGOFF</span>
+                            </div>
+                            
+                            <!-- Legend -->
+                            <div class="text-xs text-gray-500 p-2 border-t flex gap-4">
+                                <span class="flex items-center">
+                                    <span class="inline-block w-3 h-3 bg-green-200 mr-1 border border-green-300 rounded"></span>
+                                    Added content
+                                </span>
+                                <span class="flex items-center">
+                                    <span class="inline-block w-3 h-3 bg-red-200 mr-1 border border-red-300 rounded"></span>
+                                    Removed content
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <p class="mb-4">The <code class="bg-gray-100 px-1 rounded">LOGOFF</code> command ensures you properly disconnect from the system.</p>
+                    </section>
                 </div>
                 
                 <!-- Right column: Credentials and parameters -->

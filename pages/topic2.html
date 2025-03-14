@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 2 - Example Topic</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-white">
+    <div x-data="{ 
+        sidebarOpen: false,
+        showSubstitutedCode: false,
+        credentialSets: JSON.parse(localStorage.getItem('credentialSets') || '[]'),
+        selectedCredentialIndex: 0,
+        useStoredCredentials: true,
+        customUsername: '',
+        customPassword: '',
+        senderCompIDs: JSON.parse(localStorage.getItem('senderCompIDs') || '[]'),
+        targetCompIDs: JSON.parse(localStorage.getItem('targetCompIDs') || '[]'),
+        selectedSenderCompID: '',
+        selectedTargetCompID: '',
+        customSenderCompID: 'PFXO_IPV_MD1',
+        customTargetCompID: 'BGC',
+        
+        get selectedCredential() {
+            return this.credentialSets.length > 0 && this.selectedCredentialIndex >= 0 
+                ? this.credentialSets[this.selectedCredentialIndex] 
+                : { name: 'None', username: '', password: '' };
+        },
+        
+        get currentCredentials() {
+            return this.useStoredCredentials 
+                ? this.selectedCredential 
+                : { 
+                    name: 'Custom',
+                    username: this.customUsername || 'your-username',
+                    password: this.customPassword || 'your-password'
+                  };
+        },
+        
+        get currentSenderCompID() {
+            return this.selectedSenderCompID || this.customSenderCompID;
+        },
+        
+        get currentTargetCompID() {
+            return this.selectedTargetCompID || this.customTargetCompID;
+        },
+        
+        substituteCredentials(codeText) {
+            return codeText
+                .replace(/\${USERNAME}/g, this.currentCredentials.username)
+                .replace(/\${PASSWORD}/g, this.currentCredentials.password)
+                .replace(/\${SENDER_COMP_ID}/g, this.currentSenderCompID)
+                .replace(/\${TARGET_COMP_ID}/g, this.currentTargetCompID);
+        }
+    }" class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-100 border-r border-gray-200 fixed h-full overflow-y-auto">
+            <div class="p-4">
+                <h1 class="text-xl font-bold mb-4">Documentation</h1>
+                <nav>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html" class="block p-2 hover:bg-gray-200 rounded">Home</a></li>
+                        <li><a href="topic1.html" class="block p-2 hover:bg-gray-200 rounded">Topic 1</a></li>
+                        <li><a href="topic2.html" class="block p-2 hover:bg-gray-200 rounded">Topic 2</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <main class="ml-64 flex-1 p-8">
+            <div class="flex">
+                <!-- Left column: Content -->
+                <div class="w-2/3 pr-8">
+                    <h1 class="text-3xl font-bold mb-6">Topic 2: Example Topic</h1>
+                    <section class="mb-8">
+                        <h2 class="text-2xl font-semibold mb-4">Understanding the Concept</h2>
+                        <p class="mb-4">Here's where you explain the concept...</p>
+                        
+                        <!-- Code example with credential placeholders -->
+                        <div class="relative mb-8">
+                            <pre x-show="showSubstitutedCode"><code class="language-plaintext">FIX_LOGON ${USERNAME} ${PASSWORD} ${SENDER_COMP_ID} ${TARGET_COMP_ID}
+FIX_LOGOFF ${USERNAME}</code></pre>
+                            
+                            <pre x-show="!showSubstitutedCode"><code class="language-plaintext" x-html="substituteCredentials('FIX_LOGON ${USERNAME} ${PASSWORD} ${SENDER_COMP_ID} ${TARGET_COMP_ID}\nFIX_LOGOFF ${USERNAME}')"></code></pre>
+
+                            <div class="absolute -top-2 right-2 flex items-center">
+                                <button 
+                                    @click="showSubstitutedCode = !showSubstitutedCode" 
+                                    class="text-sm px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center"
+                                    :class="{ 'bg-blue-500 text-white hover:bg-blue-600': !showSubstitutedCode }"
+                                >
+                                    <span x-text="showSubstitutedCode ? 'Show With Credentials' : 'Show Template'"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                
+                <!-- Right column: Credentials and parameters -->
+                <div class="w-1/3 bg-gray-50 p-6 rounded-lg sticky top-8 self-start">
+                    <h2 class="text-xl font-semibold mb-4">Connection Settings</h2>
+                    
+                    <!-- Credential options -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3 pb-2 border-b">Credentials</h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Use saved credentials option -->
+                            <div>
+                                <label class="flex items-center">
+                                    <input 
+                                        type="radio" 
+                                        name="credentialType"
+                                        @click="useStoredCredentials = true"
+                                        :checked="useStoredCredentials"
+                                        class="text-blue-600 focus:ring-blue-500"
+                                    >
+                                    <span class="ml-2">Use saved credentials</span>
+                                </label>
+                                
+                                <div x-show="useStoredCredentials" class="mt-3 ml-6">
+                                    <div x-show="credentialSets.length === 0" class="text-gray-500 italic">
+                                        No credential sets available. Add some in the settings.
+                                    </div>
+                                    
+                                    <div x-show="credentialSets.length > 0">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Select credential set:</label>
+                                        <select 
+                                            x-model.number="selectedCredentialIndex"
+                                            class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                        >
+                                            <template x-for="(cred, index) in credentialSets" :key="index">
+                                                <option :value="index" x-text="cred.name"></option>
+                                            </template>
+                                        </select>
+                                        
+                                        <div class="mt-2 text-sm">
+                                            <div>Username: <span x-text="selectedCredential.username" class="font-medium"></span></div>
+                                            <div>Password: <span class="font-medium">********</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Use custom credentials option -->
+                            <div>
+                                <label class="flex items-center">
+                                    <input 
+                                        type="radio" 
+                                        name="credentialType"
+                                        @click="useStoredCredentials = false"
+                                        :checked="!useStoredCredentials"
+                                        class="text-blue-600 focus:ring-blue-500"
+                                    >
+                                    <span class="ml-2">Use custom credentials</span>
+                                </label>
+                                
+                                <div x-show="!useStoredCredentials" class="mt-3 ml-6 space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Username</label>
+                                        <input 
+                                            type="text" 
+                                            x-model="customUsername"
+                                            placeholder="Enter username"
+                                            class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                        >
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Password</label>
+                                        <input 
+                                            type="password" 
+                                            x-model="customPassword"
+                                            placeholder="Enter password"
+                                            class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Connection parameters -->
+                    <div>
+                        <h3 class="font-semibold mb-3 pb-2 border-b">Connection Parameters</h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Sender Comp ID -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Sender Comp ID</label>
+                                <select 
+                                    x-model="selectedSenderCompID"
+                                    class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                >
+                                    <option value="">Custom</option>
+                                    <template x-for="(id, index) in senderCompIDs" :key="index">
+                                        <option :value="id" x-text="id"></option>
+                                    </template>
+                                </select>
+                                
+                                <div x-show="!selectedSenderCompID" class="mt-2">
+                                    <input 
+                                        type="text" 
+                                        x-model="customSenderCompID"
+                                        class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                        placeholder="Custom Sender Comp ID"
+                                    >
+                                </div>
+                            </div>
+                            
+                            <!-- Target Comp ID -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Target Comp ID</label>
+                                <select 
+                                    x-model="selectedTargetCompID"
+                                    class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                >
+                                    <option value="">Custom</option>
+                                    <template x-for="(id, index) in targetCompIDs" :key="index">
+                                        <option :value="id" x-text="id"></option>
+                                    </template>
+                                </select>
+                                
+                                <div x-show="!selectedTargetCompID" class="mt-2">
+                                    <input 
+                                        type="text" 
+                                        x-model="customTargetCompID"
+                                        class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                        placeholder="Custom Target Comp ID"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html> 
